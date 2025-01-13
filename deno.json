@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@jamesaduncan/flatter": "jsr:@jamesaduncan/flatter@^0.0.3",
+    "@std/media-types": "jsr:@std/media-types@^1.1.0"
+  }
+}

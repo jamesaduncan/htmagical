@@ -1,0 +1,58 @@
+body {
+    background-color: palegoldenrod;
+}
+
+section > h1 {
+    width: 80%;
+}
+
+dl {    
+    padding: 0;
+    margin : 0;
+}
+
+dt {
+    padding: 0;
+}
+
+dd {
+    padding: 0;
+    margin : 0;
+}
+
+.responsive-two-columns, .aspects {
+    display:flex;
+    flex-wrap:wrap;
+}
+
+.field {
+    background-color: white;
+    min-width: 10ch;
+    height: 1.5vmax;
+}
+
+/* columns */
+.responsive-two-columns > .column, .aspects > dl {
+    flex: 50%;
+}
+
+/* tablet breakpoint */
+@media (min-width:768px) {
+    .responsive-two-columns > .column, .aspects > dl {
+        width:40%;
+    }
+}
+
+
+tfoot input[type=number] {
+    width: 4ch;
+}
+
+td.attack-damage {
+    min-width: 13ch;
+}
+
+input.damage {
+    max-width: 3ch;
+}
+
