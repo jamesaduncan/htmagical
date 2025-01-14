@@ -95,7 +95,8 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody><tr xmlns="http://www.w3.org/1999/xhtml">
+                    <tbody>
+                        <tr>
                             <td class="attack-name"><input type="text" id="new-attack-name" placeholder="Attack Name" required=""></td>
                             <td class="attack-av">
                                 <input type="number" id="new-attack-av" placeholder="0">
@@ -115,9 +116,10 @@
                                 <input type="text" id="new-attack-special" placeholder="Special" required="">
                             </td>
                             <td>
-                                <button type="button" submit="#attacks &amp;gt; tfoot &amp;gt; tr" method="delete" selector=":parent(-2)">Delete</button>
+                                <button type="button" submit="#attacks > tfoot > tr" method="delete" selector=":parent(-2)">Delete</button>
                             </td>
-                        </tr></tbody>
+                        </tr>
+                    </tbody>
                     <tfoot>
                         <tr>
                             <td class="attack-name"><input type="text" id="new-attack-name" placeholder="Attack Name" required=""></td>

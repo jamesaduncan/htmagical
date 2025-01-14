@@ -5,8 +5,9 @@ class HTMagical {
         const selector = aThing.getAttribute('submit');
         const serializer = new XMLSerializer();
         const part = document.querySelector( selector );
-        if (!part) throw new Error('invalid submission selector')
-        return serializer.serializeToString( part );
+        return part.parentNode.innerHTML;
+        //if (!part) throw new Error('invalid submission selector')
+        //return serializer.serializeToString( part );
     }
 
     static generateSelector( el ) {

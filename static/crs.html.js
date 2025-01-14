@@ -1,18 +1,8 @@
-function PATCH (selected, content) {
-    selected.innerHTML = content;
-    const button = selected.querySelector('button');
-    button.setAttribute('method', 'delete');
-    button.setAttribute('selector', ':parent(-2)');
-    button.innerHTML = "Delete";
-}
 
-function DELETE (selected) {
-    selected.parentNode.removeChild( selected );
-}
-
-const resolver = {
+export default {
     PATCH: {
         "#attacks tbody": ( selector, selected, content ) => {
+            console.log( content )
             selected.innerHTML = content;
             const button = selected.querySelector('button');
             button.setAttribute('method', 'delete');
@@ -27,6 +17,4 @@ const resolver = {
         }
     }
 
-}
-
-export default resolver;
+};
