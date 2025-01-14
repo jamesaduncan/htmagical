@@ -1,6 +1,6 @@
 import Flatter from "@jamesaduncan/flatter";
 import * as path from "jsr:@std/path";
-import { Browser, Window } from 'npm:happy-dom';
+import { Browser, DOMParser, VirtualConsolePrinter, Window } from 'npm:happy-dom';
 
 import { contentType, parseMediaType } from "@std/media-types";
 
@@ -151,11 +151,47 @@ async function bodyParser( request, context ) {
 
 const router = new Router();
 
+router.ANY( Router.Method.PATCH | Router.Method.GET, "/*", async( request, context ) => {
+    const filename = path.join( "static", context.route.pathname.groups[0] );
+    const [mimetype, characterSet] = parseMediaType( contentType( path.extname( filename ) ) );
+    context.file = {
+        data: Deno.readFile( filename ),
+        type: mimetype,
+        name: filename
+    }
+});
+
 router.patch('/:filename', async ( request, context ) => {
-    const filename = context.route.pathname.groups.filename;
-    const range    = request.headers.get('Range');
-    console.log(`Patching ${range} in ${filename} with ${context.body.length} characters`)
-    return new Response("foobarbaz");
+    const [,range] = request.headers.get('Range').split('=');
+
+    if ( context.file.type == 'text/html' ) {
+        console.log(`Patching ${context.file.type} ${range} in ${context.file.name} with ${context.body.length} characters`);
+        
+        const browser = new Browser();
+        const page    = browser.newPage();
+        const decoder = new TextDecoder("utf-8");
+        const filedata = await context.file.data;        
+        page.content  = decoder.decode( filedata );
+        const document = page.mainFrame.document;        
+        const selected = document.querySelector( range );
+        if ( selected ) {
+            selected.innerHTML = context.body;
+            const encoder = new TextEncoder();
+            Deno.writeFile( context.file.name, encoder.encode( page.content ))
+            return new Response( document.innerHTML, {
+                status: 204
+            });
+        } else {
+            return new Response("Range not Satisfiable",{
+                status: 416
+            });
+        }
+    }
+
+
+
+
+    return new Response( data );
 });
 
 const FragmentReader = {
