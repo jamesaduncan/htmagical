@@ -4,7 +4,9 @@ class HTMagical {
     static documentPart ( aThing ) {
         const selector = aThing.getAttribute('submit');
         const serializer = new XMLSerializer();
-        return serializer.serializeToString( document.querySelector( selector ));
+        const part = document.querySelector( selector );
+        if (!part) throw new Error('invalid submission selector')
+        return serializer.serializeToString( part );
     }
 
     static generateSelector( el ) {
@@ -16,8 +18,8 @@ class HTMagical {
         return `${path.join(' > ')}`.toLowerCase();        
     }
 
-    static target( aThing ) {
-        if ( aThing.hasAttribute('action') ) return aThing.getAttribute('action');
+    static selector( aThing ) {
+        if ( aThing.hasAttribute('selector') ) return aThing.getAttribute('selector');
         return HTMagical.generateSelector( el );
     }
 
@@ -26,7 +28,21 @@ class HTMagical {
     }
 
     static method( aThing ) {
-        return aThing.getAttribute("method");
+        return aThing.getAttribute("method").toLowerCase() || 'get';
+    }
+
+    static enctype( aThing ) {
+        return aThing.getAttribute('enctype') || 'text/html';
+    }
+
+    static headers( aThing ) {
+        const headers = {
+            'Content-Type': HTMagical.enctype( aThing )
+        };
+        if ( this.method( aThing ) == 'patch' ) {
+            headers['Range'] = `selector=${HTMagical.selector( aThing )}`; 
+        }
+        return headers;
     }
 }
 
@@ -41,15 +57,14 @@ document.querySelectorAll("button[method]").forEach( (button) => {
     console.log(button);
     
     button.addEventListener('click', async (event) => {
-        const part   = HTMagical.documentPart( button );
-        const url    = HTMagical.url( button );
+        const part    = HTMagical.documentPart( button );
+        const url     = HTMagical.url( button );
+        const method  = HTMagical.method( button );
+        const headers = HTMagical.headers( button );
         const response = await fetch(url, {
-            method: HTMagical.method( button ),
+            method: method,
             body: part,
-            headers: {
-                "X-Fragment": HTMagical.target( button ),
-                'Content-Type': "text/html"
-            }
+            headers: headers
         });
     });
 });

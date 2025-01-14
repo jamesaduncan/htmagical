@@ -1,11 +1,8 @@
 import Flatter from "@jamesaduncan/flatter";
-import { denoCacheDir } from "jsr:@denosaurs/plug@1/util";
 import * as path from "jsr:@std/path";
+import { Browser, Window } from 'npm:happy-dom';
 
-import { contentType } from "@std/media-types";
-
-const p = path.basename("./deno/is/awesome/mod.ts");
-
+import { contentType, parseMediaType } from "@std/media-types";
 
 class Player extends Flatter {
     username = "";
@@ -95,18 +92,23 @@ class Router extends Function{
     }
 
     static Method = {
-        GET: 1, PUT: 2, POST: 4, DELETE: 8
+        GET: 1, PUT: 2, POST: 4, DELETE: 8, PATCH: 16
     }
 
     run( request, context ) {
-        const url = new URL(request.url);        
-        return this.routes.filter( e => {
-            return e.method & Router.Method[ request.method ];
-        }).filter( e => {
-            return e.pattern.exec( url );
-        }).map( e => {
-            return e.fn( request, context );
+        const meth = request.method;
+        const url  = new URL(request.url);
+
+        const validMethods = this.routes.filter( e => {
+            return e.method & Router.Method[ request.method ]
         });
+        const validPatterns = validMethods.filter( e=> {
+            return e.pattern.exec( url );
+        })
+        return validPatterns.map( e => {
+            context.route = e.pattern.exec(url);
+            return e.fn( request, context );
+        });//.filter( r => r instanceof Response );
     }
 
     ANY( aMethod, aPattern, anFn ) {
@@ -121,6 +123,11 @@ class Router extends Function{
         this.ANY( Router.Method.PUT, pattern, fn )
     }
 
+    patch( pattern, fn ) {
+        this.ANY( Router.Method.PATCH, pattern, fn )
+    }
+
+
     post( pattern, fn ) {
         this.ANY( Router.Method.POST, pattern, fn );
     }
@@ -132,23 +139,53 @@ class Router extends Function{
 
 const runtime = new Array();
 
+const bodyParsers = {
+    'text/html': async function( request, context ) {
+        context.body = await request.text();
+    }
+}
+
+async function bodyParser( request, context ) {
+    if (request.headers.get('content-length') > 0) await bodyParsers[ request.headers.get('content-type') ]( request, context );
+}
+
 const router = new Router();
-router.get("/", async (request) => {
-    const response = new Response("Hello, world", { status: 200 });
-    return response;
+
+router.patch('/:filename', async ( request, context ) => {
+    const filename = context.route.pathname.groups.filename;
+    const range    = request.headers.get('Range');
+    console.log(`Patching ${range} in ${filename} with ${context.body.length} characters`)
+    return new Response("foobarbaz");
 });
 
-async function getfile( aFilename ) {
+const FragmentReader = {
+    'text/html': function( fragment, data ) {
+        const browser = new Browser();
+        const page    = browser.newPage();
+        page.content  = data;
+        return page.mainFrame.document.querySelector( fragment ).innerHTML;
+    }
+}
+
+async function getfile( request, aFilename, opts = {} ) {
     try {
         const info = await Deno.stat( aFilename );    
         if (info.isDirectory) {
-            return getfile( path.join( aFilename, "index.html" ));
+            return getfile( request, path.join( aFilename, "index.html" ), opts);
         } else {
-            const bytes = await Deno.readFile( aFilename );
+            let bytes = await Deno.readFile( aFilename );
+            const [mimetype, characterSet] = parseMediaType( contentType( path.extname( aFilename ) ) );
+            const fragment = request.headers.get('x-fragment');
+            
+            const decoder = new TextDecoder( 'utf-8');
+            const encoder = new TextEncoder();
+            if ( fragment ) {                
+                bytes = encoder.encode( FragmentReader[ mimetype ]( fragment, decoder.decode( bytes )) );
+            }
             return new Response( bytes, {
                 status: 200,
                 headers: {
-                    'content-type': contentType( path.extname( aFilename ) )
+                    'content-type': mimetype
                 }
             })
         }
@@ -157,34 +194,45 @@ async function getfile( aFilename ) {
         return;
     }
 }
+runtime.push( bodyParser );
+runtime.push( router );
+runtime.push( function( request, context ) {
+    if ( request.method != 'GET') return;
 
-runtime.push( async function( request, context ) {
     const url = new URL(request.url);
-    const filepath = path.join( 'static', url.pathname );
-    console.log(`getting ${filepath}`);
-    console.log(request);
-    return getfile( filepath );
+    const aFilename = path.join( 'static', url.pathname );
+    return getfile( request, aFilename, { root: 'static' });
 })
 
 Deno.serve(async (req) => {
     const context = {};
-    const promises = runtime.flatMap( me => me(req, context ) );
-    await Promise.all( promises ).then( (results ) => {
-        context.response = results.find( (result) => result instanceof Response );        
+    const results = new Array();
+    for ( const mw of runtime ) {
+        const result = await mw( req, context );            
+        if ( result ) {
+            if (result[Symbol.iterator])
+                results.push(...result);
+            else 
+                results.push(result);
+        }
+    }
+
+    await Promise.all( results ).then( (results) => {
+        context.response = results.find( (result) => result instanceof Response );
     }).catch( (error) => {
-        context.response = new Response(`Internal Server Error: ${error}`, {
+        context.response = new Response(`Internal Server Error (Runtime): ${error}`, {
             status: 500
         });
-    }).finally(() => {
+        console.error(error);
+    }).finally( () => {
         if ( ! context.response ) {
             const url = new URL(req.url)
             context.response = new Response(`Not Found: ${url.pathname}`, {
                 status: 404
             })
-        }  
-    })
+        }
+    });
 
-    console.log( context.response );
-    
+    console.log(`${context.response.status} ${req.method} ${req.url}`)
     return context.response;
 });
