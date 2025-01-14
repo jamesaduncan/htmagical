@@ -51,9 +51,14 @@ router.patch('/:filename', async ( request, context ) => {
         const selected = document.querySelector( range );
         if ( selected ) {
             const library = await import("./" + context.file.name + ".js");
-            const fn = library.default[ request.method ];
+            const meth = library.default[ request.method ];
+            const fn   = meth[ range ];
             if ( fn ) {
-                fn( selected, context.body );
+                fn( range, selected, context.body );
+            } else {
+                if ( meth['*'] ) {
+                    meth['*']( range, selected, context.body );
+                }
             }
             const encoder = new TextEncoder();
             Deno.writeFile( context.file.name, encoder.encode( context.page.content ))

@@ -76,6 +76,7 @@ if ( buttons ) {
     console.log( library );
     buttons.forEach( (button) => {
         button.addEventListener('click', async (event) => {
+            console.log('click')
             const part    = HTMagical.documentPart( button );
             const url     = HTMagical.url( button );
             const method  = HTMagical.method( button );
@@ -86,7 +87,17 @@ if ( buttons ) {
                 headers: headers
             });
             if ( response.ok ) {
-                library.default[ method.toUpperCase() ]( document.querySelector( HTMagical.selector( button )), part )
+                const selector = HTMagical.selector( button );
+                const meth = library.default[ method.toUpperCase() ];
+                console.log(`Looking for library.default[ ${method} ]['${selector}']`)
+                const fn   = meth[ selector ];
+                if( fn ) {
+                    fn( selector, document.querySelector( selector ), part );
+                } else {
+                    if ( meth['*'] ) {
+                        meth['*']( selector, document.querySelector( selector ), part );
+                    }
+                }
             }
         });
     });
