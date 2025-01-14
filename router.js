@@ -1,4 +1,8 @@
 
+import * as path from "jsr:@std/path";
+import { contentType, parseMediaType } from "@std/media-types";
+
+
 class Router extends Function {
     routes = [];
 
@@ -9,7 +13,19 @@ class Router extends Function {
                 return target.run( argumentsList[0], argumentsList[1] );
             }
         };
-        return new Proxy(this, handler)
+        const router = new Proxy(this, handler);
+        
+        router.ANY( Router.Method.PATCH | Router.Method.GET | Router.Method.DELETE, "/*", async( request, context ) => {
+            const filename = path.join( "static", context.route.pathname.groups[0] );
+            const [mimetype, characterSet] = parseMediaType( contentType( path.extname( filename ) ) );
+            context.file = {
+                data: Deno.readFile( filename ),
+                type: mimetype,
+                name: filename
+            }
+        });
+
+        return router;
     }
 
     static Method = {
@@ -54,7 +70,7 @@ class Router extends Function {
     }
 
     delete( pattern, fn ) {
-        this.ANY( Router.Method.DELETE, pattern. fn );
+        this.ANY( Router.Method.DELETE, pattern, fn );
     }
 }
 

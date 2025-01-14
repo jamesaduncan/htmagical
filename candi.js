@@ -1,4 +1,4 @@
-
+import Router from "./router.js";
 
 function Serve( runtime ) {
     Deno.serve(async (req) => {

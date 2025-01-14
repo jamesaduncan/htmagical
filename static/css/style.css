@@ -20,10 +20,12 @@ dd {
     margin : 0;
 }
 
+/*
 .responsive-two-columns, .aspects {
     display:flex;
     flex-wrap:wrap;
 }
+*/
 
 .field {
     background-color: white;
@@ -42,7 +44,6 @@ dd {
         width:40%;
     }
 }
-
 
 tfoot input[type=number] {
     width: 4ch;

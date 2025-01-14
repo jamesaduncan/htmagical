@@ -95,27 +95,48 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td class="attack-name"><input type="text" id="new-attack-name" placeholder="Attack Name"></td>
+                    <tbody><tr xmlns="http://www.w3.org/1999/xhtml">
+                            <td class="attack-name"><input type="text" id="new-attack-name" placeholder="Attack Name" required=""></td>
                             <td class="attack-av">
                                 <input type="number" id="new-attack-av" placeholder="0">
                             </td>
                             <td class="attack-range">
-                                <input type="number" id="new-attack-range" placeholder="1">
+                                <input type="number" id="new-attack-range" placeholder="1" required="">
                             </td>
                             <td class="attack-damage">
-                                <input class="damage weak" type="number" id="new-attack-damage-weak" placeholder="1">
-                                <input class="damage moderate" type="number" id="new-attack-damage-moderate" placeholder="2">
-                                <input class="damage severe" type="number" id="new-attack-damage-severe" placeholder="3">
+                                <input class="damage weak" type="number" id="new-attack-damage-weak" placeholder="1" required="">
+                                <input class="damage moderate" type="number" id="new-attack-damage-moderate" placeholder="2" required="">
+                                <input class="damage severe" type="number" id="new-attack-damage-severe" placeholder="3" required="">
                             </td>
                             <td class="attack-reload">
-                                <input type="text" id="new-attack-reload" placeholder="Reload">
+                                <input type="text" id="new-attack-reload" placeholder="Reload" required="">
                             </td>
                             <td class="attack-special">
-                                <input type="text" id="new-attack-special" placeholder="Special">
+                                <input type="text" id="new-attack-special" placeholder="Special" required="">
+                            </td>
+                            <td>
+                                <button type="button" submit="#attacks &amp;gt; tfoot &amp;gt; tr" method="delete" selector=":parent(-2)">Delete</button>
+                            </td>
+                        </tr></tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="attack-name"><input type="text" id="new-attack-name" placeholder="Attack Name" required=""></td>
+                            <td class="attack-av">
+                                <input type="number" id="new-attack-av" placeholder="0">
+                            </td>
+                            <td class="attack-range">
+                                <input type="number" id="new-attack-range" placeholder="1" required="">
+                            </td>
+                            <td class="attack-damage">
+                                <input class="damage weak" type="number" id="new-attack-damage-weak" placeholder="1" required="">
+                                <input class="damage moderate" type="number" id="new-attack-damage-moderate" placeholder="2" required="">
+                                <input class="damage severe" type="number" id="new-attack-damage-severe" placeholder="3" required="">
+                            </td>
+                            <td class="attack-reload">
+                                <input type="text" id="new-attack-reload" placeholder="Reload" required="">
+                            </td>
+                            <td class="attack-special">
+                                <input type="text" id="new-attack-special" placeholder="Special" required="">
                             </td>
                             <td>
                                 <button type="button" submit="#attacks > tfoot > tr" method="patch" selector="#attacks tbody">Add</button>
@@ -133,7 +154,7 @@
             </section>   
         </div>
     </main>
-    <script src="/js/htmagical.js"></script>
+    <script src="/js/htmagical.js" type="module"></script>
 
 
 </body></html>
