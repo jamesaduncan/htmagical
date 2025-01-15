@@ -1,9 +1,20 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo App Example</title>
+    <title>HTMagical Example</title>
     <style>
         li span { margin-right: 1ch; }
+        section.app {
+            outline: 1px solid black;
+            padding-top: 1ch;
+            padding-left: 2ch;
+            padding-right: 5ch;
+            padding-bottom: 5ch;
+            width: 30%;
+        }
+        section.explanation {
+            width: 50%
+        }
     </style>
     <script type="module" src="/js/HTMagical.js"></script>
     <script type="module" id="HTMagical">        
@@ -21,7 +32,6 @@
                     button.setAttribute('for', `#${listItemId}`);
                     button.setAttribute('action', ':parent(-1)');
                     li.appendChild( button );
-
                     target.appendChild( li );
                 }
             },
@@ -35,12 +45,41 @@
     </script>    
 </head>
 <body>
-    <h1>Todo List</h1>
-    <ul id="myTodoList">
-    </ul>        
-    <input id="todoItem" type="text" name="todo" placeholder="To do item...">
+    <h1>HTMagical Demo</h1>
 
-    <button method="patch" for="#todoItem" action="ul">Add</button>
+    <section class="explanation">
+        <p>
+            HTMagical works by implementing a server-side DOM, and allowing some of the more
+            esoteric HTTP verbs to be used alongside it.
+        </p>
+        <p>
+            In this example, we attach an HTTP
+            PATCH to the todo list button using the <code>method</code> attribute. We point
+            same <code>button</code> at the <code>#todoItem</code> element using the <code>for</code>
+            attribute, and provide a target destination for the patch by specifying the appropriate
+            selector to the the <code>action</code> attribute.
+        </p>
+        <p>
+            HTMagical intercepts the button's click event, and uses the fetch API to send the
+            specified data to the server - in this case, the <code>input</code> element with the
+            <code>todoItem</code> id.
+        </p>
+        <p>
+            When the server receives the request, it processes the request using the DOM manipulation
+            code in the document script tag with the <code>HTMagical</code> id. If it succeeds, the server
+            writes the file back to disk, and then sends back a successful HTTP status. When the successful
+            status is received, <em>the same DOM manipulation code</em> is then executed on the client.
+        </p>
+        <p>
+            Boom; hypermedia just became the engine of application state.
+        </p>
+    </section>
 
-
+    <section class="app">
+        <h2>Todo List</h2>
+        <ul>
+        </ul>
+        <input id="todoItem" type="text" name="todo" placeholder="To do item...">
+        <button method="patch" for="#todoItem" action="ul">Add</button>
+    </section>
 </body></html>
