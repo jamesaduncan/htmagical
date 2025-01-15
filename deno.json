@@ -1,6 +1,5 @@
 {
   "imports": {
-    "@jamesaduncan/flatter": "jsr:@jamesaduncan/flatter@^0.0.3",
     "@oak/oak": "jsr:@oak/oak@^17.1.4",
     "@std/media-types": "jsr:@std/media-types@^1.1.0",
     "happy-dom": "npm:happy-dom@^16.5.3"
