@@ -41,9 +41,34 @@ function parseHTMLPreserveRoot(htmlString, document) {
     }
 }
 
+const magicalAction = async (document, params ) => {
+    const moduleCode = document.getElementById("HTMagical").textContent;    
+    const blob = new Blob([moduleCode], { type: 'text/javascript' })
+    const blobURL = URL.createObjectURL(blob);
+    const library = await import(blobURL);
+
+    const methodActions = library.default[ params.method ] || library.default[ params.headers.get('content-type') ][ params.method ];
+    if ( methodActions ) {
+        const fn   = methodActions[ params.selector ] || methodActions['*'];
+        if ( fn ) {
+            fn( document, params.selected, params.root, {
+                selector: params.selector,
+                document: document
+            });
+        }
+    }
+};
+
 export default async( ctx, next) => {
+    const url = new URL(ctx.request.url);
+    if ( url.pathname == "/!HTMagicalAction.js" ) {
+        ctx.response.status = 200;
+        ctx.response.headers.set('Content-Type', 'application/javascript')
+        ctx.response.body   = `export default ${magicalAction.toString()}`;
+        return await next();
+    }
+
     if ( ctx.request.method == 'PATCH' || ctx.request.method == "DELETE" ) {
-        const url = new URL(ctx.request.url);
         
         let filename = path.join( 'static', url.pathname );
         if ( Deno.statSync( filename ).isDirectory ) filename = path.join( filename, "index.html" )
@@ -64,9 +89,8 @@ export default async( ctx, next) => {
             if ( mimetype == 'text/html' ) {
                 const root = parseHTMLPreserveRoot( await ctx.request.body.text(), document );
                 const selected = document.querySelector( range );
-                if ( selected ) {
-                    const actionHandler = await import('./static/js/Action.js');
-                    await actionHandler.default( document, {
+                if ( selected ) {                    
+                    await magicalAction( document, {
                         selected,
                         root,
                         method : ctx.request.method,
