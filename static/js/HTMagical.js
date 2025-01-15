@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     })
 
-    const actionHandler = await import("/!HTMagicalAction.js");
+    const actionHandler = await import("/!/HTMagicalAction.js");
 
     document.registerSelector( 'button[method]', (button) => {
         button.addEventListener('click', async (event) => {
