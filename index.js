@@ -32,6 +32,45 @@ router.ANY(Router.Method.DELETE | Router.Method.PATCH | Router.Method.GET, '/:fi
     })
 });
 
+function parseHTMLPreserveRoot(htmlString, document) {
+    // Mapping of elements to their required parent context
+    const contextMap = {
+        'tr': 'table',
+        'td': 'table',
+        'th': 'table',
+        'tbody': 'table',
+        'thead': 'table',
+        'tfoot': 'table',
+        'li': 'ul',
+        'option': 'select',
+        'optgroup': 'select',
+    };
+
+    // Extract the tag name of the root element
+    const tagNameMatch = htmlString.trim().match(/^<([a-z]+)[\s>]/i);
+    if (!tagNameMatch) {
+        throw new Error('Invalid HTML string.');
+    }
+    const rootTag = tagNameMatch[1].toLowerCase();
+
+    // Determine if a contextual wrapper is needed
+    const wrapperTag = contextMap[rootTag] || null;
+
+    if (wrapperTag) {
+        // Wrap the HTML string in the required parent
+        const wrapper = document.createElement(wrapperTag);
+        wrapper.innerHTML = htmlString.trim();
+
+        // Return the root element
+        return wrapper.querySelector(rootTag);
+    } else {
+        // If no wrapper is needed, parse directly
+        const template = document.createElement('template');
+        template.innerHTML = htmlString.trim();
+        return template.content.firstChild;
+    }
+}
+
 router.delete('/:filename', async ( request, context ) => {
     const [,range] = request.headers.get('Range').split('=');
     const document = await context.document;
@@ -48,16 +87,17 @@ router.patch('/:filename', async ( request, context ) => {
     const [,range] = request.headers.get('Range').split('=');
     if ( context.file.type == 'text/html' ) {
         const document = await context.document;
+        const root = parseHTMLPreserveRoot( context.body, document );
         const selected = document.querySelector( range );
         if ( selected ) {
             const library = await import("./" + context.file.name + ".js");
             const meth = library.default[ request.method ];
             const fn   = meth[ range ];
             if ( fn ) {
-                fn( range, selected, context.body );
+                fn( range, selected, root, context.body );
             } else {
                 if ( meth['*'] ) {
-                    meth['*']( range, selected, context.body );
+                    meth['*']( range, selected, root, context.body );
                 }
             }
             const encoder = new TextEncoder();

@@ -1,13 +1,58 @@
 /* htmagical buttons */
 
+HTMLElement.prototype.registerSelector  = function( selector, callback ) {
+    if (!this._selectorReg) this._selectorReg = {};
+    const registry = this._selectorReg;
+    if ( registry[ selector ] ) {
+        registry[ selector ].push( callback );
+    } else {
+        registry[ selector ] = [ callback ];
+    }
+};
+document.registerSelector = HTMLElement.prototype.registerSelector;
+
+/* this sets up the mutation observer to watch the document, and
+    execute on any callbacks whenever we see registered selectors appear */
+self.addEventListener("load", () => {
+    const registry = document._selectorReg;
+    const selectors = Object.keys( document._selectorReg );
+    for ( const selector of selectors ) {
+        const nodes = document.querySelectorAll( selector );
+        for ( const node of nodes ) {
+            for ( const cb of registry[ selector ] ) {
+                cb( node, selector );
+            }      
+        }    
+    }
+     
+    const observer = new MutationObserver( function( mutationList, observer ) {
+        for ( const mutation of mutationList ) {
+            if ( mutation.addedNodes.length > 0 ) {
+                mutation.addedNodes.forEach( (node) => {
+                    for ( const selector of selectors ) {
+                        if ( !node.querySelectorAll ) break;
+                        const nodes = node.querySelectorAll( selector );                        
+                        for ( const cbnode of nodes ) {
+                            for ( const cb of registry[ selector ] ) {
+                                cb( cbnode, selector );
+                            }      
+                        }	     
+                    }
+                });
+            }
+        }
+    });
+    
+    observer.observe( document.querySelector('body'), { childList: true, subtree: true });
+});
+   
+
 class HTMagical {
     static documentPart ( aThing ) {
         const selector = aThing.getAttribute('submit');
-        const serializer = new XMLSerializer();
         const part = document.querySelector( selector );
-        return part.parentNode.innerHTML;
-        //if (!part) throw new Error('invalid submission selector')
-        //return serializer.serializeToString( part );
+        return part;
+//        return part.parentNode.innerHTML;
     }
 
     static generateSelector( el ) {
@@ -71,35 +116,39 @@ document.querySelectorAll('input').forEach( (input) => {
     });
 })
 
-let buttons = document.querySelectorAll("button[method]");
-if ( buttons ) {
-    const library = await import(window.location + ".js");
-    console.log( library );
-    buttons.forEach( (button) => {
-        button.addEventListener('click', async (event) => {
-            console.log('click')
-            const part    = HTMagical.documentPart( button );
-            const url     = HTMagical.url( button );
-            const method  = HTMagical.method( button );
-            const headers = HTMagical.headers( button );
-            const response = await fetch(url, {
-                method: method,
-                body: part,
-                headers: headers
-            });
-            if ( response.ok ) {
-                const selector = HTMagical.selector( button );
-                const meth = library.default[ method.toUpperCase() ];
-                console.log(`Looking for library.default[ ${method} ]['${selector}']`)
-                const fn   = meth[ selector ];
-                if( fn ) {
-                    fn( selector, document.querySelector( selector ), part );
-                } else {
-                    if ( meth['*'] ) {
-                        meth['*']( selector, document.querySelector( selector ), part );
-                    }
+document.registerSelector( 'button[method]', (button) => {
+    button.addEventListener('click', async (event) => {
+        console.log('click')
+        const part    = HTMagical.documentPart( button );
+        const url     = HTMagical.url( button );
+        const method  = HTMagical.method( button );
+        const headers = HTMagical.headers( button );
+        const response = await fetch(url, {
+            method: method,
+            body: part.parentNode.innerHTML,
+            headers: headers
+        });
+        if ( response.ok ) {
+            const library = await import(window.location + ".js");
+            const selector = HTMagical.selector( button );
+            const meth = library.default[ method.toUpperCase() ];
+            console.log(`Looking for library.default[ ${method} ]['${selector}']`)
+            const fn   = meth[ selector ];
+            const clone = part.cloneNode( true );
+            if( fn ) {
+                fn( selector, document.querySelector( selector ), clone, part.parentNode.innerHTML );
+            } else {
+                if ( meth['*'] ) {
+                    meth['*']( selector, document.querySelector( selector ), clone, part.parentNode.innerHTML );
                 }
             }
-        });
+        }
     });
-}
+});
+/*
+let buttons = document.querySelectorAll("button[method]");
+if ( buttons ) {
+    console.log( library );
+    buttons.forEach( (button) => {
+    });
+}*/

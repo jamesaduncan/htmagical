@@ -18,14 +18,13 @@ dt {
 dd {
     padding: 0;
     margin : 0;
+
 }
 
-/*
 .responsive-two-columns, .aspects {
     display:flex;
     flex-wrap:wrap;
 }
-*/
 
 .field {
     background-color: white;
@@ -45,7 +44,7 @@ dd {
     }
 }
 
-tfoot input[type=number] {
+tfoot input[type=number], tbody input[type=number] {
     width: 4ch;
 }
 

@@ -1,13 +1,13 @@
 
 export default {
     PATCH: {
-        "#attacks tbody": ( selector, selected, content ) => {
-            console.log( content )
-            selected.innerHTML = content;
-            const button = selected.querySelector('button');
+        "#attacks tbody": ( selector, selected, element, content ) => {                        
+            const button = element.querySelector('button');
             button.setAttribute('method', 'delete');
             button.setAttribute('selector', ':parent(-2)');
-            button.innerHTML = "Delete";      
+            button.innerHTML = "Delete";
+
+            selected.appendChild( element )
         }
     },
 
