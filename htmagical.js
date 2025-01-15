@@ -61,7 +61,8 @@ const magicalAction = async (document, params ) => {
 
 export default async( ctx, next) => {
     const url = new URL(ctx.request.url);
-    if ( url.pathname == "/!HTMagicalAction.js" ) {
+
+    if ( url.pathname == "/!/HTMagicalAction.js" ) {
         ctx.response.status = 200;
         ctx.response.headers.set('Content-Type', 'application/javascript')
         ctx.response.body   = `export default ${magicalAction.toString()}`;
@@ -98,14 +99,14 @@ export default async( ctx, next) => {
                         selector: range,
                     });
                     const encoder = new TextEncoder();
-                    Deno.writeFile( filename, encoder.encode( page.content ))
+                    if ( filedata != page.content ) // only write if we have to.
+                        Deno.writeFile( filename, encoder.encode( page.content ))
                     ctx.response.status = 204;
-                    //ctx.response.body;
-                    return;//next();
+                    return;
                 } else {
                     ctx.response.status = 416;
                     ctx.response.body   = "Range not satisfiable";
-                    return;//next();
+                    return;
                 }    
             }
         }
