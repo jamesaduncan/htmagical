@@ -16,29 +16,27 @@
                 }
             },
 
-            "text/html": {
-                PATCH: {
-                    "ul": ( document, target, element ) => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<span>${element.getAttribute('value')}</span>`;
-                        const listItemId = "id" + new Date().getTime();
-                        li.setAttribute('id', listItemId)
+            PATCH: {
+                "ul": ( document, target, element ) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>${element.getAttribute('value')}</span>`;
+                    const listItemId = "id" + new Date().getTime();
+                    li.setAttribute('id', listItemId)
 
-                        const button = document.createElement( 'button' );
-                        button.appendChild( document.createTextNode( 'Delete' ) );
-                        button.setAttribute('method', 'delete');
-                        button.setAttribute('for', `#${listItemId}`);
-                        button.setAttribute('action', ':parent(-1)');
-                        li.appendChild( button );
+                    const button = document.createElement( 'button' );
+                    button.appendChild( document.createTextNode( 'Delete' ) );
+                    button.setAttribute('method', 'delete');
+                    button.setAttribute('for', `#${listItemId}`);
+                    button.setAttribute('action', ':parent(-1)');
+                    li.appendChild( button );
 
-                        target.appendChild( li );
-                    }
-                },
+                    target.appendChild( li );
+                }
+            },
 
-                DELETE: {
-                    '*': ( document, target, element, opts ) => {
-                        target.parentNode.removeChild( target );
-                    }
+            DELETE: {
+                '*': ( document, target, element, opts ) => {
+                    target.parentNode.removeChild( target );
                 }
             }
         };
@@ -50,7 +48,7 @@
         
     
     
-    </ul>
+    <li id="id1736947615778"><span>My todo list</span><button method="delete" for="#id1736947615778" action=":parent(-1)">Delete</button></li><li id="id1736948976404"><span>Make this work with falling handlers</span><button method="delete" for="#id1736948976404" action=":parent(-1)">Delete</button></li><li id="id1736949338281"><span>New item for the todo list</span><button method="delete" for="#id1736949338281" action=":parent(-1)">Delete</button></li><li id="id1736949601899"><span>asdfdsaf</span><button method="delete" for="#id1736949601899" action=":parent(-1)">Delete</button></li></ul>
     <input id="todoItem" type="text" name="todo" placeholder="To do item...">
 
     <button method="patch" for="#todoItem" action="ul">Add</button>

@@ -4,8 +4,6 @@ import htmagical from "./htmagical.js";
 
 
 const app = new Application();
-const router = new Router();
-
 
 app.use(logger.logger)
 app.use(logger.responseTime)
@@ -23,7 +21,10 @@ app.use( async (ctx, next) => {
     }
 });
 
-app.use(router.routes())
-app.use(router.allowedMethods());
+app.addEventListener('listen', (params) => {
+    const { serverType, hostname, port } = params;
+    console.log( params );
+    console.log(`listening on http://${hostname}:${port}`);
+});
 
 app.listen({ port: 9001 });
