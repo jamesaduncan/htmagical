@@ -1,5 +1,5 @@
 import * as path from "jsr:@std/path";
-import { contentType, parseMediaType } from "@std/media-types";
+import { contentType, parseMediaType } from "jsr:@std/media-types";
 import { Browser, Window } from 'npm:happy-dom';
 
 function parseHTMLPreserveRoot(htmlString, document) {
