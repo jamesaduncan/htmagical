@@ -1,6 +1,6 @@
 import logger from "https://deno.land/x/oak_logger/mod.ts";
 import { Application, Router } from "jsr:@oak/oak";
-import htmagical from "./htmagical.js";
+import htmagical from "https://raw.githubusercontent.com/jamesaduncan/htmagical/refs/heads/main/htmagical.js";
 
 
 const app = new Application();
@@ -23,7 +23,6 @@ app.use( async (ctx, next) => {
 
 app.addEventListener('listen', (params) => {
     const { serverType, hostname, port } = params;
-    console.log( params );
     console.log(`listening on http://${hostname}:${port}`);
 });
 

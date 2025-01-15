@@ -311,6 +311,8 @@
     "https://raw.githubusercontent.com/halvardssm/oak-middleware-error-logger/master/mod.ts": "f0e475d41716eb491be60e3854b77e5995e07053fc05e054d278a3c89fe0c93a",
     "https://raw.githubusercontent.com/halvardssm/oak-middleware-error-logger/master/src/errorMiddleware.ts": "c1b1f3131a195014d4a7e3412752c4be52a900661c4f55098a0c85a053d6765b",
     "https://raw.githubusercontent.com/halvardssm/oak-middleware-error-logger/master/src/logger.ts": "2be735a1e6675c0b5a0236643fd15857e8ecfa88af60a0b2a011983c829e4035",
+    "https://raw.githubusercontent.com/jamesaduncan/htmagical/refs/heads/main/htmagical.js": "d144fd539e617a88c91751323df5f1a02bd2ce46448275ba4a69898fcdce5584",
+    "https://raw.githubusercontent.com/jamesaduncan/htmagical/refs/heads/main/static/js/Action.js": "d2d82a9ce80f2ffee38598c054d5409c95ca7e9b9dacbe7dcd3d72f4319b73db",
     "https://raw.githubusercontent.com/pillarjs/path-to-regexp/v6.1.0/src/index.ts": "8747ddaf85a761df4059cbc48a78cf710106f6b4c9d6932feb4d35120ac0990a"
   },
   "workspace": {
