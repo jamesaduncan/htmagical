@@ -115,6 +115,8 @@ document.querySelectorAll('input').forEach( (input) => {
     });
 })
 
+const actionHandler = await import("/js/Action.js");
+
 document.registerSelector( 'button[method]', (button) => {
     button.addEventListener('click', async (event) => {
         const part    = HTMagical.for( button );
@@ -127,7 +129,6 @@ document.registerSelector( 'button[method]', (button) => {
             headers: headers
         });
         if ( response.ok ) {
-            const actionHandler = await import("/js/Action.js");
             const selector = HTMagical.action( button );
             const clone    = part.cloneNode( true );            
             await actionHandler.default( document, {
