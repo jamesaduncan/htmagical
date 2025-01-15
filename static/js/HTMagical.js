@@ -48,11 +48,10 @@ self.addEventListener("load", () => {
    
 
 class HTMagical {
-    static documentPart ( aThing ) {
-        const selector = aThing.getAttribute('submit');
+    static for ( aThing ) {
+        const selector = aThing.getAttribute('for');
         const part = document.querySelector( selector );
         return part;
-//        return part.parentNode.innerHTML;
     }
 
     static generateSelector( el ) {
@@ -64,9 +63,9 @@ class HTMagical {
         return `${path.join(' > ')}`.toLowerCase();        
     }
 
-    static selector( aThing ) {
-        if ( aThing.hasAttribute('selector') ) {
-            const selector = aThing.getAttribute('selector');
+    static action( aThing ) {
+        if ( aThing.hasAttribute('action') ) {
+            const selector = aThing.getAttribute('action');
 
             const match = selector.match(/^\:parent\((\-{0,1}\d+)\)/);
             if ( match ) {
@@ -103,9 +102,9 @@ class HTMagical {
         };
         const method = this.method( aThing );
         if ( method == "patch" || method == "delete" ) {
-            headers['Range'] = `selector=${HTMagical.selector( aThing )}`; 
+            headers['Range'] = `selector=${HTMagical.action( aThing )}`; 
         }
-        return headers;
+        return new Headers( headers );
     }
 }
 
@@ -118,37 +117,26 @@ document.querySelectorAll('input').forEach( (input) => {
 
 document.registerSelector( 'button[method]', (button) => {
     button.addEventListener('click', async (event) => {
-        console.log('click')
-        const part    = HTMagical.documentPart( button );
+        const part    = HTMagical.for( button );
         const url     = HTMagical.url( button );
         const method  = HTMagical.method( button );
         const headers = HTMagical.headers( button );
         const response = await fetch(url, {
             method: method,
-            body: part.parentNode.innerHTML,
+            body: part.outerHTML,
             headers: headers
         });
         if ( response.ok ) {
-            const library = await import(window.location + ".js");
-            const selector = HTMagical.selector( button );
-            const meth = library.default[ method.toUpperCase() ];
-            console.log(`Looking for library.default[ ${method} ]['${selector}']`)
-            const fn   = meth[ selector ];
-            const clone = part.cloneNode( true );
-            if( fn ) {
-                fn( selector, document.querySelector( selector ), clone, part.parentNode.innerHTML );
-            } else {
-                if ( meth['*'] ) {
-                    meth['*']( selector, document.querySelector( selector ), clone, part.parentNode.innerHTML );
-                }
-            }
+            const actionHandler = await import("/js/Action.js");
+            const selector = HTMagical.action( button );
+            const clone    = part.cloneNode( true );            
+            await actionHandler.default( document, {
+                selected: document.querySelector( selector ),
+                root: clone,
+                method : method.toUpperCase(),
+                headers: headers, 
+                selector: selector
+            });
         }
     });
 });
-/*
-let buttons = document.querySelectorAll("button[method]");
-if ( buttons ) {
-    console.log( library );
-    buttons.forEach( (button) => {
-    });
-}*/

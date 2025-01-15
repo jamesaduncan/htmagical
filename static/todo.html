@@ -1,0 +1,58 @@
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App Example</title>
+    <style>
+        li span { margin-right: 1ch; }
+    </style>
+    <script type="module" src="/js/HTMagical.js"></script>
+    <script type="module" id="HTMagical">        
+        export default {
+            "application/json": {
+                GET: {
+                    "*": ( document, target, element ) => {
+
+                    }                    
+                }
+            },
+
+            "text/html": {
+                PATCH: {
+                    "ul": ( document, target, element ) => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span>${element.getAttribute('value')}</span>`;
+                        const listItemId = "id" + new Date().getTime();
+                        li.setAttribute('id', listItemId)
+
+                        const button = document.createElement( 'button' );
+                        button.appendChild( document.createTextNode( 'Delete' ) );
+                        button.setAttribute('method', 'delete');
+                        button.setAttribute('for', `#${listItemId}`);
+                        button.setAttribute('action', ':parent(-1)');
+                        li.appendChild( button );
+
+                        target.appendChild( li );
+                    }
+                },
+
+                DELETE: {
+                    '*': ( document, target, element, opts ) => {
+                        target.parentNode.removeChild( target );
+                    }
+                }
+            }
+        };
+    </script>    
+</head>
+<body>
+    <h1>Todo List</h1>
+    <ul id="myTodoList">        
+        
+    
+    
+    <li id="id1736943035902"><span>hhhhhhhjjk</span><button method="delete" for="#id1736943035902" action=":parent(-1)">Delete</button></li><li id="id1736943166859"><span>Add code so that we can use it as a JSON api too.</span><button method="delete" for="#id1736943166859" action=":parent(-1)">Delete</button></li></ul>
+    <input id="todoItem" type="text" name="todo" placeholder="To do item...">
+
+    <button method="patch" for="#todoItem" action="ul">Add</button>
+
+</body></html>

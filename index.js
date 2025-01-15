@@ -71,35 +71,21 @@ function parseHTMLPreserveRoot(htmlString, document) {
     }
 }
 
-router.delete('/:filename', async ( request, context ) => {
-    const [,range] = request.headers.get('Range').split('=');
-    const document = await context.document;
-    const selected = document.querySelector( range );
-    selected.parentNode.removeChild( selected );
-
-    const encoder = new TextEncoder();
-    Deno.writeFile( context.file.name, encoder.encode( context.page.content ) )
-
-    return new Response( null, { status: 204 });
-})
-
-router.patch('/:filename', async ( request, context ) => {
+router.ANY(Router.Method.PATCH | Router.Method.DELETE, '/:filename', async ( request, context ) => {
     const [,range] = request.headers.get('Range').split('=');
     if ( context.file.type == 'text/html' ) {
         const document = await context.document;
         const root = parseHTMLPreserveRoot( context.body, document );
         const selected = document.querySelector( range );
         if ( selected ) {
-            const library = await import("./" + context.file.name + ".js");
-            const meth = library.default[ request.method ];
-            const fn   = meth[ range ];
-            if ( fn ) {
-                fn( range, selected, root, context.body );
-            } else {
-                if ( meth['*'] ) {
-                    meth['*']( range, selected, root, context.body );
-                }
-            }
+            let actionHandler = await import('./static/js/Action.js');
+            await actionHandler.default( document, {
+                selected,
+                root,
+                method : request.method,
+                headers: request.headers, 
+                selector: range,
+            });
             const encoder = new TextEncoder();
             Deno.writeFile( context.file.name, encoder.encode( context.page.content ))
             return new Response( null, {
