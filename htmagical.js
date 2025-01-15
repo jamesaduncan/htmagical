@@ -44,8 +44,10 @@ function parseHTMLPreserveRoot(htmlString, document) {
 export default async( ctx, next) => {
     if ( ctx.request.method == 'PATCH' || ctx.request.method == "DELETE" ) {
         const url = new URL(ctx.request.url);
-        const filename = path.join( 'static', url.pathname );
-    
+        
+        let filename = path.join( 'static', url.pathname );
+        if ( Deno.statSync( filename ).isDirectory ) filename = path.join( filename, "index.html" )
+        
         const [mimetype, characterSet] = parseMediaType( contentType( path.extname( filename ) ) );
 
         const filedata = await Deno.readFile( filename );
