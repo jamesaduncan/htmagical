@@ -42,8 +42,8 @@ function parseHTMLPreserveRoot(htmlString, document) {
 }
 
 export default async( ctx, next) => {
-    console.log( `ctx.request.method is ${ctx.request.method}`)
     if ( ctx.request.method == 'PATCH' || ctx.request.method == "DELETE" ) {
+        const url = new URL(ctx.request.url);
         const filename = path.join( 'static', url.pathname );
     
         const [mimetype, characterSet] = parseMediaType( contentType( path.extname( filename ) ) );

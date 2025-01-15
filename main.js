@@ -1,6 +1,6 @@
 import logger from "https://deno.land/x/oak_logger/mod.ts";
 import { Application, Router } from "jsr:@oak/oak";
-import htmagical from "https://raw.githubusercontent.com/jamesaduncan/htmagical/refs/heads/main/htmagical.js";
+import htmagical from "./htmagical.js";
 
 
 const app = new Application();
