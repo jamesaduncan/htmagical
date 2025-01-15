@@ -1,13 +1,8 @@
-console.log("running HTMagical.js");
-
 /* htmagical buttons */
 document._selectorReg = {};
 
 document.addEventListener("DOMContentLoaded", async () => {
-    console.log("in the DOMContentLoaded event");
-
     HTMLElement.prototype.registerSelector  = function( selector, callback ) {
-//            if (!this._selectorReg) this._selectorReg = {};
         const registry = this._selectorReg;
         if ( registry[ selector ] ) {
             registry[ selector ].push( callback );
@@ -88,7 +83,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const actionHandler = await import("/js/Action.js");
 
     document.registerSelector( 'button[method]', (button) => {
-        console.log("processing selector event for button", button);
         button.addEventListener('click', async (event) => {
             const part    = HTMagical.for( button );
             const url     = HTMagical.url( button );
@@ -117,7 +111,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         execute on any callbacks whenever we see registered selectors appear */
         const registry = document._selectorReg;    
         const selectors = Object.keys( document._selectorReg );
-        console.log(`selectors are `, selectors)
         for ( const selector of selectors ) {
             const nodes = document.querySelectorAll( selector );
             for ( const node of nodes ) {
